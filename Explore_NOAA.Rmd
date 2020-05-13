@@ -1,0 +1,97 @@
+---
+title: "Explore_NOAA"
+author: "you"
+date: "13-5-2020"
+output: html_document
+---
+
+##TITLE
+
+#Synopsis
+
+#Data Processing
+The U.S. National Oceanic and Atmospheric Administration's (NOAA) storm database was downloaded and read in.
+Only the observations that reported fatalities, injuries, property damage or crop damage were selected. Only the columns that will be used in the analysis were subsetted.
+This resulted in a dataset that inlcudes 254633 observations of 7 variables.
+```{r, echo=TRUE}
+
+dataset_url <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2FStormData.csv.bz2"
+download.file(dataset_url, "NOAA.csv.bz2")
+
+if (!file.exists("NOAA.csv.bz2")) {
+        library(R.utils)
+        bunzip2("NOAA.csv.bz2.", 
+                "NOAA.csv", remove = FALSE) }
+
+NOAA<-read.csv("NOAA.csv")
+
+message(nrow(NOAA), " observations and ", ncol(NOAA), " fields")
+
+NOAAsub <- subset(NOAA, FATALITIES > 0 | INJURIES > 0 | PROPDMG > 0 | CROPDMG > 0, select = c(8, 23:28))
+
+nrow(NOAAsub)
+ncol(NOAAsub)
+
+```
+
+1. Across the United States, which types of events (as indicated in the EVTYPE variable) are most harmful with respect to population health?
+A top 15 of event types is made for both fatalities and injuries.
+```{r, echo=TRUE}
+
+totFAT <- aggregate(FATALITIES ~ EVTYPE, NOAAsub, FUN = sum, na.rm=TRUE)
+totFAT <- totFAT[order(-totFAT$FATALITIES), ]
+topFAT <- totFAT[1:15, ]
+
+totINJ <- aggregate(INJURIES ~ EVTYPE, NOAAsub, FUN = sum, na.rm=TRUE)
+totINJ <- totINJ[order(-totINJ$INJURIES), ]
+topINJ <- totINJ[1:15, ]
+
+```
+
+2.Across the United States, which types of events have the greatest economic consequences?
+The damage data is seperated in 2 columns: DMG and DMGEXP. The EXP needs to be converted to numeric values and added to the DMG.
+```{r, echo=TRUE}
+
+expData <- NOAAsub[NOAAsub$PROPDMGEXP %in% c("", "K", "M", "B") & NOAAsub$CROPDMGEXP %in% c("", "K", "M", "B"), ]
+
+convExponent <- function(dmg, exp) {
+    if (exp == "K") {
+        dmg * 1000
+    } else if (exp == "M") {
+        dmg * 1e+06
+    } else if (exp == "B") {
+        dmg * 1e+09
+    } else if (exp == "") {
+        dmg
+    } else {
+        stop("NOT VALID DATA")
+    }
+}
+
+expData$PROP_DMG <- mapply(convExponent, expData$PROPDMG, expData$PROPDMGEXP)
+expData$CROP_DMG <- mapply(convExponent, expData$CROPDMG, expData$CROPDMGEXP)
+
+```
+
+A top 15 of event types is made for both crop and property related damage.
+
+```{r, echo=TRUE}
+
+totPROP_DMG <- aggregate(PROP_DMG ~ EVTYPE, expData, FUN = sum, na.rm=TRUE)
+totPROP_DMG <- totPROP_DMG[order(-totPROP_DMG$PROP_DMG), ]
+topPROP_DMG <- totPROP_DMG[1:15, ]
+
+totCROP_DMG <- aggregate(CROP_DMG ~ EVTYPE, expData, FUN = sum, na.rm=TRUE)
+totCROP_DMG <- totCROP_DMG[order(-totCROP_DMG$CROP_DMG), ]
+topCROP_DMG <- totCROP_DMG[1:15, ]
+
+```
+
+#Results
+1. Across the United States, which types of events (as indicated in the EVTYPE variable) are most harmful with respect to population health?
+```{r, echo=TRUE}
+par(mfrow = c(1, 2))
+barplot(height = topFAT$FATALITIES, names.arg = topFAT$EVTYPE)
+barplot(height = topINJ$INJURIES, names.arg = topINJ$EVTYPE)
+```
+
