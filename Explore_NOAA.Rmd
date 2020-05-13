@@ -1,19 +1,16 @@
 ---
-title: "Explore_NOAA"
-author: "you"
+title: "Most harmful weather events for population health and the economy in the United States between 1950 and 2011"
 date: "13-5-2020"
 output: html_document
 ---
 
-###Most harmful weather events for population health and the economy in the United States between 1950 and 2011
-
-##Synopsis
+#Synopsis
 Storms and other severe weather events can cause both public health and economic problems for communities and municipalities. This project involves exploring the U.S. National Oceanic and Atmospheric Administration's (NOAA) storm database. This database tracks characteristics of major storms and weather events in the United States, including estimates of any fatalities, injuries, property damage and crop damage.
 
 This analysis shows that tornado's cause both the most fatalities and injuries (n=5633 and n=91346). Furthermore, floods are responsible for the most property damage while drought causes the most crop damage.
 Taken those two together, floods cause the most economic damage (n=150319678257	).
 
-##Data Processing
+#Data Processing
 The U.S. National Oceanic and Atmospheric Administration's (NOAA) storm database was downloaded and read in.
 Only the observations that reported fatalities, injuries, property damage or crop damage were selected. Only the columns that will be used in the analysis were subsetted.
 This resulted in a dataset that inlcudes 254633 observations of 7 variables.
@@ -39,16 +36,16 @@ ncol(NOAAsub)
 ```
 
 1. Across the United States, which types of events (as indicated in the EVTYPE variable) are most harmful with respect to population health?
-A top 15 of event types is made for both fatalities and injuries.
+A top 5 of event types is made for both fatalities and injuries.
 ```{r, echo=TRUE}
 
 totFAT <- aggregate(FATALITIES ~ EVTYPE, NOAAsub, FUN = sum, na.rm=TRUE)
 totFAT <- totFAT[order(-totFAT$FATALITIES), ]
-topFAT <- totFAT[1:15, ]
+topFAT <- totFAT[1:5, ]
 
 totINJ <- aggregate(INJURIES ~ EVTYPE, NOAAsub, FUN = sum, na.rm=TRUE)
 totINJ <- totINJ[order(-totINJ$INJURIES), ]
-topINJ <- totINJ[1:15, ]
+topINJ <- totINJ[1:5, ]
 
 ```
 
@@ -77,28 +74,28 @@ expData$CROP_DMG <- mapply(convExponent, expData$CROPDMG, expData$CROPDMGEXP)
 
 ```
 
-A top 15 of event types is made for both crop and property related damage.
+A top 5 of event types is made for both crop and property related damage.
 
 ```{r, echo=TRUE}
 
 totPROP_DMG <- aggregate(PROP_DMG ~ EVTYPE, expData, FUN = sum, na.rm=TRUE)
 totPROP_DMG <- totPROP_DMG[order(-totPROP_DMG$PROP_DMG), ]
-topPROP_DMG <- totPROP_DMG[1:15, ]
+topPROP_DMG <- totPROP_DMG[1:5, ]
 
 totCROP_DMG <- aggregate(CROP_DMG ~ EVTYPE, expData, FUN = sum, na.rm=TRUE)
 totCROP_DMG <- totCROP_DMG[order(-totCROP_DMG$CROP_DMG), ]
-topCROP_DMG <- totCROP_DMG[1:15, ]
+topCROP_DMG <- totCROP_DMG[1:5, ]
 
 economicDamage <- aggregate(expData$CROP_DMG + expData$PROP_DMG ~ 
     EVTYPE, data = expData, sum, na.rm = TRUE)
 names(economicDamage) <- c("EVTYPE", "TOTAL_DMG")
 economicDamage <- economicDamage[order(-economicDamage$TOTAL_DMG), ]
-topTOT_DMG <- economicDamage[1:15, ]
+topTOT_DMG <- economicDamage[1:5, ]
 
 ```
 
-##Results
-#Population Health related damage
+#Results
+##Population Health related damage
 1. Across the United States, which types of events (as indicated in the EVTYPE variable) are most harmful with respect to population health?
 
 As seen in the tables and figures, overall, Tornado's cause both the most fatalities and injuries (n=5633 and n=91346). For fatalities, this event type if followed up by flash floods and heat. For injuries, this is followed up by thunderstorm winds and floods.
@@ -106,12 +103,12 @@ As seen in the tables and figures, overall, Tornado's cause both the most fatali
 print(topFAT)
 print(topINJ)
 
-par(mfrow = c(2, 1))
-barplot(height = topFAT$FATALITIES, names.arg = topFAT$EVTYPE, xlab="Event type", ylab ="Fatalities", main = "Top 15 Fatalities Events")
-barplot(height = topINJ$INJURIES, names.arg = topINJ$EVTYPE, xlab="Event type", ylab ="Injuries", main = "Top 15 Injuries Events")
+
+barplot(height = topFAT$FATALITIES, names.arg = topFAT$EVTYPE, xlab="", ylab ="Fatalities", main = "Top 5 Fatalities Events", las=2)
+barplot(height = topINJ$INJURIES, names.arg = topINJ$EVTYPE, xlab="", ylab ="Injuries", main = "Top 5 Injuries Events", las=2)
 ```
 
-#Economic damage
+##Economic damage
 2.Across the United States, which types of events have the greatest economic consequences?
 As seen in the tables, floods are responsible for the most property damage while drought causes the most crop damage.
 Taken together, floods cause the most economic damage (n=150319678257	), as also seen in the figure.
@@ -122,7 +119,7 @@ print(topPROP_DMG)
 print(topCROP_DMG)
 print(topTOT_DMG)
 
-barplot(height = topTOT_DMG$TOTAL_DMG, names.arg = topTOT_DMG$EVTYPE, xlab="Event type", ylab ="Economic damage", main = "Top 15 Economic damage Events")
+barplot(height = topTOT_DMG$TOTAL_DMG/10^6, names.arg = topTOT_DMG$EVTYPE, xlab="", ylab ="Economic damage in millions", main = "Top 5 Economic damage Events", las=2)
 
 ```
 
