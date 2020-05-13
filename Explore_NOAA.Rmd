@@ -4,13 +4,13 @@ date: "13-5-2020"
 output: html_document
 ---
 
-#Synopsis
+# Synopsis
 Storms and other severe weather events can cause both public health and economic problems for communities and municipalities. This project involves exploring the U.S. National Oceanic and Atmospheric Administration's (NOAA) storm database. This database tracks characteristics of major storms and weather events in the United States, including estimates of any fatalities, injuries, property damage and crop damage.
 
 This analysis shows that tornado's cause both the most fatalities and injuries (n=5633 and n=91346). Furthermore, floods are responsible for the most property damage while drought causes the most crop damage.
 Taken those two together, floods cause the most economic damage (n=150319678257	).
 
-#Data Processing
+# Data Processing
 The U.S. National Oceanic and Atmospheric Administration's (NOAA) storm database was downloaded and read in.
 Only the observations that reported fatalities, injuries, property damage or crop damage were selected. Only the columns that will be used in the analysis were subsetted.
 This resulted in a dataset that inlcudes 254633 observations of 7 variables.
@@ -94,8 +94,8 @@ topTOT_DMG <- economicDamage[1:5, ]
 
 ```
 
-#Results
-##Population Health related damage
+# Results
+## Population Health related damage
 1. Across the United States, which types of events (as indicated in the EVTYPE variable) are most harmful with respect to population health?
 
 As seen in the tables and figures, overall, Tornado's cause both the most fatalities and injuries (n=5633 and n=91346). For fatalities, this event type if followed up by flash floods and heat. For injuries, this is followed up by thunderstorm winds and floods.
@@ -108,7 +108,7 @@ barplot(height = topFAT$FATALITIES, names.arg = topFAT$EVTYPE, xlab="", ylab ="F
 barplot(height = topINJ$INJURIES, names.arg = topINJ$EVTYPE, xlab="", ylab ="Injuries", main = "Top 5 Injuries Events", las=2)
 ```
 
-##Economic damage
+## Economic damage
 2.Across the United States, which types of events have the greatest economic consequences?
 As seen in the tables, floods are responsible for the most property damage while drought causes the most crop damage.
 Taken together, floods cause the most economic damage (n=150319678257	), as also seen in the figure.
